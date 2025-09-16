@@ -1,1 +1,1 @@
-0 2 * * 0 /path/to/your/django/project/crm/cron_jobs/clean_inactive_customers.sh
+0 2 * * 0 /c/Users/medrp/OneDrive/Bureau/COURSES/AWS\ Cloud\ Computing\ -\ ALX\ 2025/3\ -\ BackEnd\ Pro\ Dev/alx-backend-graphql_crm/crm/cron_jobs/clean_inactive_customers.sh

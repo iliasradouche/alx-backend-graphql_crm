@@ -47,3 +47,24 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.order_number} - {self.customer.full_name}"
+
+
+class Product(models.Model):
+    """Product model for inventory management"""
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.IntegerField(default=0)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} (Stock: {self.stock})"
+
+    @property
+    def is_low_stock(self):
+        return self.stock < 10

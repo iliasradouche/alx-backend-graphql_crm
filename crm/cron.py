@@ -74,6 +74,83 @@ def log_crm_heartbeat():
             print(f"Failed to write heartbeat log: {str(e)}, {str(fallback_error)}")
             print(complete_message)
 
+def update_low_stock():
+    """
+    Execute UpdateLowStockProducts GraphQL mutation to update products with stock < 10.
+    Logs updated product names and new stock levels with timestamp.
+    """
+    # Get current timestamp
+    timestamp = datetime.now().strftime('%d/%m/%Y-%H:%M:%S')
+    
+    try:
+        # Initialize GraphQL client
+        transport = RequestsHTTPTransport(
+            url='http://localhost:8000/graphql',
+            headers={'Content-Type': 'application/json'},
+            timeout=30  # 30 second timeout for mutation
+        )
+        client = Client(transport=transport, fetch_schema_from_transport=False)
+        
+        # Define the UpdateLowStockProducts mutation
+        mutation = gql("""
+            mutation {
+                updateLowStockProducts {
+                    success
+                    message
+                    count
+                    updatedProducts {
+                        id
+                        name
+                        stock
+                    }
+                }
+            }
+        """)
+        
+        # Execute the mutation
+        result = client.execute(mutation)
+        
+        if result and 'updateLowStockProducts' in result:
+            mutation_result = result['updateLowStockProducts']
+            
+            if mutation_result['success']:
+                log_message = f"{timestamp} Low stock update successful: {mutation_result['message']}"
+                
+                # Log details of updated products
+                if mutation_result['updatedProducts']:
+                    for product in mutation_result['updatedProducts']:
+                        product_log = f"{timestamp} Updated product: {product['name']} - New stock: {product['stock']}"
+                        log_message += f"\n{product_log}"
+                else:
+                    log_message += f"\n{timestamp} No products required stock updates"
+            else:
+                log_message = f"{timestamp} Low stock update failed: {mutation_result.get('message', 'Unknown error')}"
+        else:
+            log_message = f"{timestamp} Low stock update failed: Invalid response from GraphQL endpoint"
+            
+    except TransportError as e:
+        log_message = f"{timestamp} Low stock update failed: GraphQL endpoint unreachable - {str(e)}"
+    except Exception as e:
+        log_message = f"{timestamp} Low stock update failed: {str(e)}"
+    
+    # Write to log file
+    log_file_path = '/tmp/low_stock_updates_log.txt'
+    try:
+        with open(log_file_path, 'a', encoding='utf-8') as log_file:
+            log_file.write(log_message + '\n')
+    except Exception as e:
+        # Fallback: try to write to a local file if /tmp is not accessible (Windows)
+        try:
+            fallback_path = 'low_stock_updates_log.txt'
+            with open(fallback_path, 'a', encoding='utf-8') as log_file:
+                log_file.write(log_message + '\n')
+        except Exception as fallback_error:
+            # If all else fails, print to console
+            print(f"Failed to write low stock update log: {str(e)}, {str(fallback_error)}")
+            print(log_message)
+
+
 if __name__ == '__main__':
-    # Allow running the function directly for testing
+    # Allow running the functions directly for testing
     log_crm_heartbeat()
+    update_low_stock()

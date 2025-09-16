@@ -1,5 +1,6 @@
 import os
 import logging
+import requests
 from datetime import datetime
 from celery import shared_task
 from django.db import transaction
@@ -38,7 +39,7 @@ def generate_crm_report():
         )
         
         # Log to file
-        log_file_path = '/tmp/crm_report_log.txt'
+        log_file_path = '/tmp/crmreportlog.txt'
         
         # Ensure directory exists (for Windows compatibility)
         os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
@@ -48,7 +49,7 @@ def generate_crm_report():
                 log_file.write(report_message + '\n')
         except (IOError, OSError) as e:
             # Fallback to alternative log location if /tmp is not accessible
-            fallback_path = 'crm_report_log.txt'
+            fallback_path = 'crmreportlog.txt'
             try:
                 with open(fallback_path, 'a', encoding='utf-8') as log_file:
                     log_file.write(report_message + '\n')
@@ -77,11 +78,11 @@ def generate_crm_report():
         error_log = f"{timestamp} - ERROR: {error_message}"
         
         try:
-            with open('/tmp/crm_report_log.txt', 'a', encoding='utf-8') as log_file:
+            with open('/tmp/crmreportlog.txt', 'a', encoding='utf-8') as log_file:
                 log_file.write(error_log + '\n')
         except (IOError, OSError):
             try:
-                with open('crm_report_log.txt', 'a', encoding='utf-8') as log_file:
+                with open('crmreportlog.txt', 'a', encoding='utf-8') as log_file:
                     log_file.write(error_log + '\n')
             except (IOError, OSError):
                 pass  # If we can't log to file, at least we logged to Django logger

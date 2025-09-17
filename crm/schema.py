@@ -1,6 +1,9 @@
 import graphene
 from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
+from graphene import relay
 from crm.models import Order, Product, Customer
+from crm.filters import CustomerFilter
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -13,6 +16,13 @@ class CustomerType(DjangoObjectType):
     class Meta:
         model = Customer
         fields = '__all__'
+
+
+class CustomerNode(DjangoObjectType):
+    class Meta:
+        model = Customer
+        filter_fields = ['name', 'email']
+        interfaces = (relay.Node,)
 
 
 class OrderType(DjangoObjectType):
@@ -54,7 +64,7 @@ class ErrorType(graphene.ObjectType):
 
 class Query(graphene.ObjectType):
     hello = graphene.String()
-    all_customers = graphene.List(CustomerType)
+    all_customers = DjangoFilterConnectionField(CustomerNode, filterset_class=CustomerFilter)
     all_orders = graphene.List(OrderType)
     all_products = graphene.List(ProductType)
     customer = graphene.Field(CustomerType, id=graphene.Int())

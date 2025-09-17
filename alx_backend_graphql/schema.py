@@ -23,7 +23,7 @@ class ProductType(DjangoObjectType):
         fields = '__all__'
 
 
-class Query(graphene.ObjectType):
+class CRMQuery(graphene.ObjectType):
     hello = graphene.String()
     all_customers = graphene.List(CustomerType)
     all_orders = graphene.List(OrderType)
@@ -64,7 +64,11 @@ class Query(graphene.ObjectType):
             return None
 
     def resolve_low_stock_products(self, info):
-        return Product.objects.filter(stock__lt=10)
+        return Product.objects.filter(stock_quantity__lt=10)
+
+
+class Query(CRMQuery, graphene.ObjectType):
+    pass
 
 
 class CreateCustomer(graphene.Mutation):

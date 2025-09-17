@@ -24,6 +24,7 @@ class ProductType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
+    hello = graphene.String()
     all_customers = graphene.List(CustomerType)
     all_orders = graphene.List(OrderType)
     all_products = graphene.List(ProductType)
@@ -31,6 +32,9 @@ class Query(graphene.ObjectType):
     order = graphene.Field(OrderType, id=graphene.Int())
     product = graphene.Field(ProductType, id=graphene.Int())
     low_stock_products = graphene.List(ProductType)
+
+    def resolve_hello(self, info):
+        return "Hello, GraphQL!"
 
     def resolve_all_customers(self, info):
         return Customer.objects.all()

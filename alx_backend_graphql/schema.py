@@ -3,21 +3,19 @@ from graphene_django import DjangoObjectType
 from crm.models import Order
 from crm.models import Product
 from crm.models import Customer
-from crm.schema import Query as CRMQuery, Mutation as CRMMutation
+from crm.schema import Query
+from crm.schema import Mutation
 
 
 
 
 
-class Query(CRMQuery, graphene.ObjectType):
+class MainQuery(Query, graphene.ObjectType):
     pass
 
 
-
-
-
-class Mutation(CRMMutation, graphene.ObjectType):
+class MainMutation(Mutation, graphene.ObjectType):
     pass
 
 
-schema = graphene.Schema(query=Query, mutation=Mutation)
+schema = graphene.Schema(query=MainQuery, mutation=MainMutation)
